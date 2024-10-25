@@ -1,0 +1,100 @@
+<html>
+  <head>
+    <style>
+      
+
+    </style>
+     </head>
+  <body><center>
+    <img src="malwari.jpg" alt="">
+    <table id="table">
+      <tr>
+        <th>Id</th>
+        <th>Name</th>
+        <th>Amount</th>
+      </tr>
+    </table>
+    <div id="resMsg"></div>
+    <form id="biddingForm">
+      <input type="text" name="Name" placeholder="Name" /><br>
+      <input type="number" name="amount" placeholder="Enter Amount"/><br>
+      <input type="number" name="number" placeholder="mobile number"/><br>
+      <button>Make a bid</button>
+    </form>
+  </body>
+  <script>
+    let resData = [];
+    fetch("getBiddings.php")
+      .then((res) => {
+        return res.json();
+      })
+      .then((data) => {
+        resData = data;
+        console.log(resData)
+        resData.sort((a, b) => {
+          return b["amount"] - a["amount"];
+        });
+        resData.map((value,index) => {
+
+          let table = document.getElementById("table");
+          let tableRow = document.createElement("tr");
+          let tableData1 = document.createElement("td");
+          tableData1.innerText = index;
+          let tableData2 = document.createElement("td");
+          tableData2.innerText = value["Name"];
+          let tableData3 = document.createElement("td");
+          tableData3.innerText = value["amount"];
+          tableRow.appendChild(tableData1);
+          tableRow.appendChild(tableData2);
+          tableRow.appendChild(tableData3);
+          table.appendChild(tableRow);
+        });
+      });
+
+    let form = document.getElementById("biddingForm");
+  
+    form.addEventListener("submit", (e)=>{
+        e.preventDefault();
+        let formData = new FormData(e.target)
+        fetch("addBiddings.php", {
+          method: "POST",
+          body: formData
+        }).then((res)=>{
+          return res.json();
+        }).then((data)=>{
+          document.getElementById("resMsg").innerText = data.msg;
+        });
+        resData.push({
+          id: resData.length + 1,
+          Name: formData.get("Name"), 
+          amount: formData.get("number"),
+          amount: formData.get("amount")
+        });
+        renderBiddingsTable(resData);
+    });
+
+
+
+    function renderBiddingsTable(data) {
+    let table = document.getElementById("table");
+    table.innerHTML = ""; // Clear existing table content
+      data.sort((a, b) => {
+        return b.amount - a.amount;
+      });
+    data.forEach((value, index) => {
+        let tableRow = document.createElement("tr");
+        let tableData1 = document.createElement("td");
+        tableData1.innerText = index + 1; // Displaying index starting from 1
+        let tableData2 = document.createElement("td");
+        tableData2.innerText = value.Name;
+        let tableData3 = document.createElement("td");
+        tableData3.innerText = value.amount;
+        tableRow.appendChild(tableData1);
+        tableRow.appendChild(tableData2);
+        tableRow.appendChild(tableData3);
+        table.appendChild(tableRow);
+    });
+}
+   
+  </script>
+</html></center>
